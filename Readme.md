@@ -1,6 +1,6 @@
 # DucksFeet API
 
-* [DFApi CLI Tool](#dfapi-cli-tool)
+* [DFApi CLI Tool](#cli-tool)
 * [Authentication](#Authentication)
 * [Endpoints](#Endpoints)
 * [Modules](#Modules)
@@ -12,12 +12,12 @@
 The DucksFeet API is distributed system management platform implemented with REST-like servers and used via a Python library and CLI tool. For the purposes of this document, the examples will use the dfapi CLI tool and `jq(1)` for parsing JSON. 
 
 
-## DFApi CLI Tool
+## CLI Tool
 
 The DFApi CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
 The tool handles authentication and ticket acquisition to perform actions. The tickets are cached in the rc-file. 
 
-### DFApi Usage and Configuration
+### dfapi Usage and Configuration
 
 ```bash
 usage: dfapi.py [-h] [-d] [-r file.json] [-s] endpoint [args ...]
@@ -36,24 +36,23 @@ options:
   -s, --stdin           Read API data from stdin
 ```
 
-
 The rc-file is a JSON file in the form of
 
 ```json
 {
   "credentials": "/home/user/etc/dfapi.json",
   "tickets": {
-    "devsrv": "vPIKSSKSp7e8-RaOtAzVZpKPhXSSaTQ2Sd1fkaxTt4g",
-    "dbsrv": "_cpTUNZepRKNX2kHeR5_Csg7oYtVDQIDYEi7snzDWnMDsc",
-    "mailhost": "6DnKe3GrtbTNeF96Dk33nqh9UGtg-6CFUinuSi5kG-VGQ",
-    "i2c": "2KdM99mlraLG3LE8PfkzbbPHnf1fss80TRaRgb0k63pyVo",
-    "proxmox": "KjIt1iD1o96MIuUNDffgq7SyKe8VTHjnaV1VxlgCU_yHE",
-    "coolvm": "r_u7duEDdv7qXA3450qOA-fOp0b1v6bT-KrauVr-rcrkWM"
+    "devsrv": "ticket",
+    "dbsrv": "ticket",
+    "mailhost": "ticket",
+    "i2c": "ticket",
+    "proxmox": "ticket",
+    "coolvm": "ticket"
   }
 }
 ```
 
-Note the tickets entry are cached ticket id's and should not be directly set by the user. The important key is the credentials entry that points to a credentials file. This file and the credentials file must be owned by the user and mode 600. (owner r/w).
+Note the tickets entry are cached ticket id's and should not be directly set by the user. The important key is the credentials entry that points to a credentials file. This file and the credentials file must be owned by the user and mode `600`. (`owner r/w`).
 
 And the credentials file is in the format of
 
