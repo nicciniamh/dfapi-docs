@@ -1,4 +1,4 @@
-# DFApi
+# DucksFeet API
 
 * [DFApi CLI Tool](#dfapi-cli-tool)
 * [Authentication](#Authentication)
@@ -68,7 +68,7 @@ And the credentials file is in the format of
 
 ## Authentication
 
-Access control is manage via tickets. Tickets are a unique ID that lasts a server configurable timeout, the default is 600 seconds or 10 minutes. 
+Access control is managed via tickets. Tickets are a unique ID that lasts a server configurable timeout, the default is 600 seconds or 10 minutes. 
 
 Tickets are bound to the requesting IP address. Tickets can have session data associated with the ticket. This data is expires at the same time the ticket does. 
 
