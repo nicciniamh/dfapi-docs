@@ -8,6 +8,7 @@
 * [System Information](#System-Information)
 * [Services](#Services)
 * [User Control](#User-Control)
+* [Examples](#Examples)
 * [Example System Information Blob](#Example-System-Information-Blob)
 
 The DucksFeet API is a distributed system management platform designed for secure, low-overhead monitoring and control. By utilizing a REST-like architecture served over a private Tailscale network, it provides a unified interface for interacting with diverse hosts—from Raspberry Pi sensors to Proxmox VMs—using a standardized ticketing system for secure, cross-host authorization.
