@@ -1,0 +1,490 @@
+# DFApi
+
+* [DFApi CLI Tool](#dfapi-cli-tool)
+* [DFApi Modules](#DFApi Modules)
+* [Authentication](#Authentication)
+* [Endponts](#Endponts)
+* [Modules](#Modules)
+* [Ticket](#Ticket)
+* [Sysem Information](##Sysem Information)
+* [Services](#Services)
+* [Example System Information Blob](#Example System Information Blob)
+
+##DFAPI CLI Tool
+
+The DFApi CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
+The tool handles authentication and ticket acquisition to perform actions. The tickets are cached in the rc-file. 
+
+###DFApi Usage and Configuration
+```bash
+dfapi -h
+usage: dfapi.py [-h] [-d] [-r file.json] [-s] endpoint [args ...]
+
+DFAPI tool
+
+positional arguments:
+  endpoint              endpoint to call
+  args                  arguments for the endpoint in JSON format
+
+options:
+  -h, --help            show this help message and exit
+  -d, --debug           Enable debug messages
+  -r, --rc-file file.json
+                        Load settings from file, default /home/user/.dfapi.settings.json
+  -s, --stdin           Read API data from stdin
+```
+
+The rc-file is a JSON file in the form of
+
+```json
+{
+  "credentials": "/home/user/etc/dfapi.json",
+  "tickets": {
+    "devsrv": "vPIKSSKSp7e8-RaOtAzVZpKPhXSSaTQ2Sd1fkaxTt4g",
+    "dbsrv": "_cpTUNZepRKNX2kHeR5_Csg7oYtVDQIDYEi7snzDWnMDsc",
+    "mailhost": "6DnKe3GrtbTNeF96Dk33nqh9UGtg-6CFUinuSi5kG-VGQ",
+    "i2c": "2KdM99mlraLG3LE8PfkzbbPHnf1fss80TRaRgb0k63pyVo",
+    "proxmox": "KjIt1iD1o96MIuUNDffgq7SyKe8VTHjnaV1VxlgCU_yHE",
+    "coolvm": "r_u7duEDdv7qXA3450qOA-fOp0b1v6bT-KrauVr-rcrkWM"
+  }
+}
+```
+
+Note the tcikets entry are cached ticket id's and should not be directly set by the user. The important key is the credentials entry that points to a credentials file. This file and the credentials file must be owned by the user and mode 600. (owner r/w).
+
+And the credentials file is in the format of
+
+```json
+{
+  "user_id": "sysadm",
+  "password": "sf56asecurePassword4224",
+  "apikey": "wqwffsd33434346gdfhjjfjfjf3333"
+}
+```
+
+
+##Authentication
+
+Access control is manage via tickets. Tickets are a unique ID that lasts a server configurable timeout, the defaut is 600 seconds or 10 minutes. 
+
+Tickets are bound to the requesting IP address. Tickets can have session data associated with the ticket. This data is expires at the same time the ticket does. 
+
+To obtain a ticket, a user_id and password are supplied. This is used to determine the identify of the user and the the roles assigned to that user. These roles determine permission to do operations defined by the particular modules. 
+
+When using the CLI tool or API these operations are performed automatically and cached. 
+
+
+##DFApi Modules
+
+|module|Use|
+|---------|---|
+| sensor    | Physical sensors, IoT type stuff |
+| services | Systemd tools|
+|systeminfo| System examination |
+| ticket| Access control tickets |
+| vauth | vritual user authentication|
+
+##Endponts
+
+DFApi uses consistent endpoint module and endpoints. The formats are formatted as 
+
+```bash 
+//host/module/[target][/qualifier]
+```
+
+```bash
+ dfapi //pi4/sensor/pi3/list
+[
+    "aggregate",
+    "aht10",
+    "bmp280",
+    "cpu_usage",
+    "rgb"
+]
+```
+Here the module is sensor, the target is pi4 and the qualifier is the sensor.
+Several modules imlement list targets. 
+
+##Modules
+
+###Ticket
+
+Each ticket target, except new, requires a ticket_id sent as a POST or GET parameter either in POST JSON data (herein referred to as 'data'). 
+
+End points
+
+|Target| Description |
+|--------|------------|
+|ticket/new     |Create new ticker with data: {"user_id": *userid*, "password": *password*}|
+|ticket/delete| Delete the current ticket|
+| ticket/validate | Validate the current ticket|
+| ticket/set_session| Set session data in for current ticket with data {"session_data": *JSON object*}|
+| ticket/get_session| Get session data for current ticket|
+
+Example using the DFApi Tool:
+
+```bash 
+cat etc/dfapi.json|  dfapi -s //host/ticket/new
+"Uda7fWcsIlk4UANcf249m4QGyYfyM1ViRQwhmdYyp-8"
+```
+
+Or with curl, you can see the raw data: 
+
+```bash
+ curl -Ss -d "$(cat etc/dfapi.json)" https://host:9192/ticket/new
+{"status": "ok", "request_path": "new", "data": "K2Xz5xuiIe18ss8A8Z2QtZpOK3RwhnyGNKRXcdMvToc"}
+```
+
+This uses authtntication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
+
+###Sysem Information
+
+This module provides detailed data about the target host. This comprehensive 'blob' (a JSON object) contains identification data on the host, the operating system, whether it's a virtual machine, cpu, network statistics, the count of packages that need to be ugraded, the cpu architecture, ram and disk sizes and usage.
+
+This data can be used to monitor the state of a host and issue alerts when limits are not met or used to display detailed system information in dashboards. 
+
+The endpoints are a subset of the full blob that can be returned. If data from multiple endpoints is needed it's better to request the full blob and index it, e.g.:
+
+```bash
+ dfapi //hp/systeminfo | jq '{
+  "tailnet": (.net.tailscale0.tx_speed),
+  "lan": (.net.eth0.tx_speed),
+  "cpu": (.cpu.percent),
+  "ram": (.ram.percent),
+}'
+{
+  "tailnet": 7406,
+  "lan": 10300,
+  "cpu": 1.1,
+  "ram": 50.8
+}
+```
+Here we see the advantage of one request but extracting different data. If, on the other hand, you are just intereted ram usage you could just get that data. E.g.:
+
+```bash
+ dfapi //hp/systeminfo/ram | jq '{"ram": (.percent)}'
+{
+  "ram": 51.2
+}
+```
+
+This is module generates large amounts of data.
+
+Endpoints:
+
+|Endpoint|Descrtion|
+|-----------|-------------|
+|systeminfo|Full systeminformation object|
+|systeminfo/net| Network Devices|
+|systeminfo/cpu| CPU Data|
+|systeminfo/uptime| System Uptime|
+|systeminfo/storage| Storage Information|
+|systeminfo/upgrades| Upgradeable Packages|
+|systeminfo/ram| Ram Information|
+|systeminfo/info| General System Information|
+/systeminfo/list|List available endpoints|
+
+###Services
+
+The services module uses pre-defined roles that are defined in the user record and tied to the ticket. Operations must have either *service_read*  *service_control*. These endpoints provide direct access to some systemd functions and require granular control via RBAC and ticketing operations. 
+
+The services endpoints are:
+
+|Endpoint|Description| Role Required |
+|----|----|----|
+|services/list | List all services | service_read|
+|services/*service*/status | Get Detailed service status| service_read |
+|services/*service*/start | Start service | service_control |
+|services/*service*/stop | Stop service | service_control |
+|services/*service*/restart| Restart service | service_control |
+
+Example of service control and response:
+
+```bash
+ dfapi //hp/services/dummy-target/start
+{
+    "action": "start",
+    "service_name": "dummy-target",
+    "command_status": true,
+    "return_code": 0,
+    "message": ""
+}
+```
+
+The services/list endpoint will produce *lots* of  data: 
+
+```bash
+dfapi //hp/services/list [
+    {
+        "unit": "boot.automount",
+        "load": "not-found",
+        "active": "inactive",
+        "sub": "dead",
+        "description": "boot.automount"
+    },
+    {
+        "unit": "Extra.automount",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "description": "Extra.automount"
+    },
+    {
+        "unit": "net-Duckie.automount",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "description": "net-Duckie.automount"
+    },
+    {
+        "unit": "proc-sys-fs-binfmt_misc.automount",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "description": "Arbitrary Executable File Formats File System Automount Point"
+    },
+    {
+        "unit": "dev-cdrom.device",
+        "load": "loaded",
+        "active": "active",
+        "sub": "plugged",
+        "description": "QEMU_DVD-ROM d-live_12.11.0_xf_amd64"
+    },
+    {
+        "unit": "dev-disk-by\\x2ddiskseq-1.device",
+        "load": "loaded",
+        "active": "active",
+        "sub": "plugged",
+        "description": "/dev/disk/by-diskseq/1"
+    },
+    {
+        "unit": "dev-disk-by\\x2ddiskseq-2.device",
+        "load": "loaded",
+        "active": "active",
+        "sub": "plugged",
+        "description": "/dev/disk/by-diskseq/2"
+    },
+    ...
+``` 
+
+service/*service*/status also produces a large amount of data:
+
+```bash
+ dfapi //hp/services/rapi/status
+ {
+    "Type": "simple",
+    "ExitType": "main",
+    "Restart": "always",
+    "PIDFile": null,
+    "NotifyAccess": "none",
+    "RestartUSec": "1s",
+    "TimeoutStartUSec": "1min 30s",
+    "TimeoutStopUSec": "1min 30s",
+    "TimeoutAbortUSec": "1min 30s",
+    "TimeoutStartFailureMode": "terminate",
+    "TimeoutStopFailureMode": "terminate",
+    "RuntimeMaxUSec": "infinity",
+    "RuntimeRandomizedExtraUSec": "0",
+    "WatchdogUSec": "0",
+    "WatchdogTimestamp": null,
+    "WatchdogTimestampMonotonic": "0",
+    "RootDirectoryStartOnly": "no",
+    "RemainAfterExit": "no",
+    "GuessMainPID": "yes",
+    "RestartPreventExitStatus": null,
+    "RestartForceExitStatus": null,
+    "SuccessExitStatus": null,
+    "MainPID": "2110257",
+    "ControlPID": "0",
+    "BusName": null,
+    "FileDescriptorStoreMax": "0",
+    "NFileDescriptorStore": "0",
+    "StatusText": null,
+    "StatusErrno": "0",
+    "Result": "success",
+    "ReloadResult": "success",
+    "CleanResult": "success",
+    "USBFunctionDescriptors": null,
+    "USBFunctionStrings": null,
+    "UID": "[not set]",
+    "GID": "[not set]",
+    "NRestarts": "0",
+    "OOMPolicy": "stop",
+    "ExecMainStartTimestamp": "Sun 2026-03-01 22:19:29 PST",
+    "ExecMainStartTimestampMonotonic": "2600527272441",
+    "ExecMainExitTimestamp": null,
+    "ExecMainExitTimestampMonotonic": "0",
+    "ExecMainPID": "2110257",
+    "ExecMainCode": "0",
+    "ExecMainStatus": "0",
+    "ExecStart": "{ path=/opt/rapi/rapi-server ; argv[]=/opt/rapi/rapi-server ; ignore_errors=no ; start_time=[Sun 2026-03-01 22:19:29 PST] ; stop_time=[n/a] ; pid=2110257 ; code=(null) ; status=0/0 }",
+    "ExecStartEx": "{ path=/opt/rapi/rapi-server ; argv[]=/opt/rapi/rapi-server ; flags= ; start_time=[Sun 2026-03-01 22:19:29 PST] ; stop_time=[n/a] ; pid=2110257 ; code=(null) ; status=0/0 }",
+    "Slice": "system.slice",
+    "ControlGroup": "/system.slice/rapi.service",
+    ...
+```  
+ 
+####Example System Information Blob
+
+```json
+ dfapi //hp/systeminfo
+{
+    "modinfo": "com.ducksfeet.rapi.sysinfo:v1.2",
+    "net": {
+        "lo": {
+            "iface": "lo",
+            "address": "127.0.0.1/8",
+            "tx_speed": 168,
+            "rx_speed": 168,
+            "statistics": {
+                "bytes_sent": 176388442,
+                "bytes_recv": 176388442,
+                "packets_sent": 1356088,
+                "packets_recv": 1356088,
+                "errin": 0,
+                "errout": 0,
+                "dropin": 0,
+                "dropout": 0
+            }
+        },
+        "eth0": {
+            "iface": "eth0",
+            "address": "192.168.1.77/24",
+            "tx_speed": 9828,
+            "rx_speed": 6700,
+            "statistics": {
+                "bytes_sent": 9803380517,
+                "bytes_recv": 13201741464,
+                "packets_sent": 28582124,
+                "packets_recv": 51681967,
+                "errin": 0,
+                "errout": 0,
+                "dropin": 4983,
+                "dropout": 0
+            }
+        },
+        "tailscale0": {
+            "iface": "tailscale0",
+            "address": "100.101.222.53/32",
+            "tx_speed": 7102,
+            "rx_speed": 4715,
+            "statistics": {
+                "bytes_sent": 5555337246,
+                "bytes_recv": 3830650216,
+                "packets_sent": 13941564,
+                "packets_recv": 19176409,
+                "errin": 0,
+                "errout": 0,
+                "dropin": 0,
+                "dropout": 0
+            }
+        }
+    },
+    "cpu": {
+        "cpu_temperature": 0,
+        "cpu_model": "QEMU Virtual CPU version 2.5+",
+        "cpu_count": 8,
+        "cpu_freq": [
+            2904.0760000000005,
+            0.0,
+            0.0
+        ],
+        "loadavg": [
+            0.0927734375,
+            0.0615234375,
+            0.0556640625
+        ],
+        "percent": 4.3,
+        "times": [
+            68221.33,
+            19.71,
+            17472.42,
+            21194563.22,
+            3162.17,
+            0.0,
+            4195.89,
+            729.76,
+            0.0,
+            0.0
+        ],
+        "stats": [
+            1430813925,
+            982359595,
+            666146769,
+            0
+        ]
+    },
+    "uptime": {
+        "pretty": "up 4 weeks, 2 days, 20 hours, 2 minutes",
+        "seconds": 2664160.67
+    },
+    "storage": [
+        {
+            "friendly_dev": "EFIBOOT",
+            "dev": "LABEL=EFIBOOT",
+            "mount": "/boot/efi",
+            "fstype": "vfat",
+            "total": 535801856,
+            "free": 523550720,
+            "used": 12251136,
+            "percent": 2
+        },
+        {
+            "friendly_dev": "PNY250",
+            "dev": "LABEL=PNY250",
+            "mount": "/",
+            "fstype": "xfs",
+            "total": 239401926656,
+            "free": 188825722880,
+            "used": 50576203776,
+            "percent": 21
+        },
+        {
+            "friendly_dev": "PNY500",
+            "dev": "LABEL=PNY500",
+            "mount": "/home",
+            "fstype": "xfs",
+            "total": 499325988864,
+            "free": 440325464064,
+            "used": 59000524800,
+            "percent": 11
+        }
+    ],
+    "upgrades": {
+        "upgradable_packages": 100
+    },
+    "ram": {
+        "total": 8303169536,
+        "free": 1170882560,
+        "used": 4246175744,
+        "cached": 3252510720,
+        "percent": 51.1,
+        "active": 1470500864,
+        "buffers": 2695168,
+        "inactive": 4285255680,
+        "shared": 49778688,
+        "slab": 788754432
+    },
+    "info": {
+        "virtual_machine": true,
+        "machine": "x86_64",
+        "sysname": "Linux",
+        "version": "#1 SMP PREEMPT_DYNAMIC Debian 6.1.159-1 (2025-12-30)",
+        "release": "6.1.0-42-amd64",
+        "nodename": "hp",
+        "os-release": {
+            "PRETTY_NAME": "Debian GNU/Linux 12 (bookworm)",
+            "NAME": "Debian GNU/Linux",
+            "VERSION_ID": 12,
+            "VERSION": "12 (bookworm)",
+            "VERSION_CODENAME": "bookworm",
+            "ID": "debian",
+            "HOME_URL": "https://www.debian.org/",
+            "SUPPORT_URL": "https://www.debian.org/support",
+            "BUG_REPORT_URL": "https://bugs.debian.org/"
+        }
+    },
+    "module_time": 1772496002
+}
+
+```
