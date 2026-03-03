@@ -93,10 +93,10 @@ The endpoints are formatted as
 
 |module|Use|
 |---------|---|
-| apiuser | User control module |
-| services | Systemd tools|
-|systeminfo| System examination |
-| ticket| Access control tickets |
+| [apiuser](#apiuser) | User control module |
+| [services](#services) | Systemd tools|
+| [systeminfo](#system-information)| System examination |
+| [ticket](#ticket)| Access control tickets |
 
 ### APIUser
 The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. See, also, [Authentication](#Authentication)
