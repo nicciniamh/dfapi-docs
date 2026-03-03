@@ -14,7 +14,7 @@ The DucksFeet API is distributed system management platform implemented with RES
 
 ## CLI Tool
 
-The DFApi CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
+The DucksFeet API CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
 The tool handles authentication and ticket acquisition to perform actions. The tickets are cached in the rc-file. 
 
 ### dfapi Usage and Configuration
