@@ -2,12 +2,15 @@
 
 * [DFApi CLI Tool](#dfapi-cli-tool)
 * [Authentication](#Authentication)
-* [Endponts](#Endponts)
+* [Endpoints](#Endpoints)
 * [Modules](#Modules)
 * [Ticket](#Ticket)
 * [System Information](#System-Information)
 * [Services](#Services)
 * [Example System Information Blob](#Example-System-Information-Blob)
+
+The DucksFeet API is distributed system management platform implemented with REST-like servers and used via a Python library and CLI tool. For the purposes of this document, the examples will use the dfapi CLI tool and `jq(1)` for parsing JSON. 
+
 
 ## DFApi CLI Tool
 
@@ -17,7 +20,6 @@ The tool handles authentication and ticket acquisition to perform actions. The t
 ### DFApi Usage and Configuration
 
 ```bash
-dfapi -h
 usage: dfapi.py [-h] [-d] [-r file.json] [-s] endpoint [args ...]
 
 DFAPI tool
@@ -51,7 +53,7 @@ The rc-file is a JSON file in the form of
 }
 ```
 
-Note the tcikets entry are cached ticket id's and should not be directly set by the user. The important key is the credentials entry that points to a credentials file. This file and the credentials file must be owned by the user and mode 600. (owner r/w).
+Note the tickets entry are cached ticket id's and should not be directly set by the user. The important key is the credentials entry that points to a credentials file. This file and the credentials file must be owned by the user and mode 600. (owner r/w).
 
 And the credentials file is in the format of
 
@@ -66,7 +68,7 @@ And the credentials file is in the format of
 
 ## Authentication
 
-Access control is manage via tickets. Tickets are a unique ID that lasts a server configurable timeout, the defaut is 600 seconds or 10 minutes. 
+Access control is manage via tickets. Tickets are a unique ID that lasts a server configurable timeout, the default is 600 seconds or 10 minutes. 
 
 Tickets are bound to the requesting IP address. Tickets can have session data associated with the ticket. This data is expires at the same time the ticket does. 
 
@@ -85,7 +87,7 @@ When using the CLI tool or API these operations are performed automatically and 
 | ticket| Access control tickets |
 | vauth | vritual user authentication|
 
-## Endponts
+## Endpoints
 
 DFApi uses consistent endpoint module and endpoints. The formats are formatted as 
 
@@ -104,7 +106,7 @@ DFApi uses consistent endpoint module and endpoints. The formats are formatted a
 ]
 ```
 Here the module is sensor, the target is pi4 and the qualifier is the sensor.
-Several modules imlement list targets. 
+Several modules implement list targets. 
 
 ## Modules
 
@@ -136,11 +138,11 @@ Or with curl, you can see the raw data:
 {"status": "ok", "request_path": "new", "data": "K2Xz5xuiIe18ss8A8Z2QtZpOK3RwhnyGNKRXcdMvToc"}
 ```
 
-This uses authtntication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
+This uses authentication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
 
 ### System Information
 
-This module provides detailed data about the target host. This comprehensive 'blob' (a JSON object) contains identification data on the host, the operating system, whether it's a virtual machine, cpu, network statistics, the count of packages that need to be ugraded, the cpu architecture, ram and disk sizes and usage.
+This module provides detailed data about the target host. This comprehensive 'blob' (a JSON object) contains identification data on the host, the operating system, whether it's a virtual machine, cpu, network statistics, the count of packages that need to be upgraded, the cpu architecture, ram and disk sizes and usage.
 
 This data can be used to monitor the state of a host and issue alerts when limits are not met or used to display detailed system information in dashboards. 
 
@@ -160,7 +162,7 @@ The endpoints are a subset of the full blob that can be returned. If data from m
   "ram": 50.8
 }
 ```
-Here we see the advantage of one request but extracting different data. If, on the other hand, you are just intereted ram usage you could just get that data. E.g.:
+Here we see the advantage of one request but extracting different data. If, on the other hand, you are just interested ram usage you could just get that data. E.g.:
 
 ```bash
  dfapi //hp/systeminfo/ram | jq '{"ram": (.percent)}'
@@ -173,7 +175,7 @@ This is module generates large amounts of data.
 
 Endpoints:
 
-|Endpoint|Descrtion|
+|Endpoint|Description|
 |-----------|-------------|
 |systeminfo|Full systeminformation object|
 |systeminfo/net| Network Devices|
