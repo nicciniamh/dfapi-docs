@@ -325,6 +325,26 @@ service/*service*/status also produces a large amount of data:
     "ControlGroup": "/system.slice/rapi.service",
     ...
 ```  
+
+#### Example of Authentication with Cross Host Ticket Use
+
+Files:
+
+* `~/etc/dfapi.json` - Contains credentials and secret key needed foor all transactions
+* `~/etc/dfapi-key.json` - Contains just the secret key needed. 
+
+```bash
+# Using curl(1) to get a ticket from host a
+
+curl -Ss -d "$(cat etc/dfapi.json)"  https://hosta.example.com:9192/ticket/new | jq -r '.data'
+P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
+
+# Using curl(1) to get system information from hostb with the ticket obtained from hosta 
+
+curl -Ss -d "$(cat ~/etc/dfapi-key.json)" https://hostb.example.com:9192/systeminfo/info\?ticket_id\=P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
+{"status": "ok", "request_path": "info", "data": {"virtual_machine": true, "machine": "x86_64", "sysname": "Linux", "version": "#1 SMP PREEMPT_DYNAMIC Debian 6.1.159-1 (2025-12-30)", "release": "6.1.0-42-amd64", "nodename": "hostb", "os-release": {"PRETTY_NAME": "Debian GNU/Linux 12 (bookworm)", "NAME": "Debian GNU/Linux", "VERSION_ID": 12, "VERSION": "12 (bookworm)", "VERSION_CODENAME": "bookworm", "ID": "debian", "HOME_URL": "https://www.debian.org/", "SUPPORT_URL": "https://www.debian.org/support", "BUG_REPORT_URL": "https://bugs.debian.org/"}}}
+
+```
  
 #### Example System Information Blob
 
