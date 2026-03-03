@@ -20,21 +20,21 @@ The tool handles authentication and ticket acquisition to perform actions. The t
 
 ### dfapi Usage and Configuration
 
-```bash
-usage: dfapi.py [-h] [-d] [-p integer] [-r file.json] [-s] endpoint [args ...]
+usage: `dfapi.py [-h] [-d] [-p integer] [-r file.json] [-s] endpoint [args ...]`
+
+Arguments
+
+| Options | Usage |
+|---------|-------|
+|  -d, --debug|           Enable debug messages |
+|  -p, --port integer |   Use port specified, default 9192 |
+|  -r, --rc-file |   Load settings from file, default ~/.dfapi.settings.json |
+|  -s, --stdin |          Read API data from stdin |
+| -h, --help|            Show help message and exit |
 
 positional arguments:
-  endpoint              endpoint to call
-  args                  arguments for the endpoint in JSON format
-
-options:
-  -h, --help            show this help message and exit
-  -d, --debug           Enable debug messages
-  -p, --port integer    Use port specified, default 9192
-  -r, --rc-file file.json
-                        Load settings from file, default /home/nicci/.dfapi.settings.json
-  -s, --stdin           Read API data from stdin
-  ```
+*  endpoint: Endpoint to call
+*  args: Arguments for the endpoint in JSON format
 
 The rc-file is a JSON file in the form of
 
