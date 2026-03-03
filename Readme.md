@@ -1,21 +1,20 @@
 # DFApi
 
 * [DFApi CLI Tool](#dfapi-cli-tool)
-* [DFApi Modules](#DFApi Modules)
 * [Authentication](#Authentication)
 * [Endponts](#Endponts)
 * [Modules](#Modules)
 * [Ticket](#Ticket)
-* [Sysem Information](##Sysem Information)
+* [System Information](#System Information)
 * [Services](#Services)
 * [Example System Information Blob](#Example System Information Blob)
 
-##DFAPI CLI Tool
+## DFApi CLI Tool
 
 The DFApi CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
 The tool handles authentication and ticket acquisition to perform actions. The tickets are cached in the rc-file. 
 
-###DFApi Usage and Configuration
+### DFApi Usage and Configuration
 ```bash
 dfapi -h
 usage: dfapi.py [-h] [-d] [-r file.json] [-s] endpoint [args ...]
@@ -63,7 +62,7 @@ And the credentials file is in the format of
 ```
 
 
-##Authentication
+## Authentication
 
 Access control is manage via tickets. Tickets are a unique ID that lasts a server configurable timeout, the defaut is 600 seconds or 10 minutes. 
 
@@ -74,7 +73,7 @@ To obtain a ticket, a user_id and password are supplied. This is used to determi
 When using the CLI tool or API these operations are performed automatically and cached. 
 
 
-##DFApi Modules
+## DFApi Modules
 
 |module|Use|
 |---------|---|
@@ -84,7 +83,7 @@ When using the CLI tool or API these operations are performed automatically and 
 | ticket| Access control tickets |
 | vauth | vritual user authentication|
 
-##Endponts
+## Endponts
 
 DFApi uses consistent endpoint module and endpoints. The formats are formatted as 
 
@@ -105,9 +104,9 @@ DFApi uses consistent endpoint module and endpoints. The formats are formatted a
 Here the module is sensor, the target is pi4 and the qualifier is the sensor.
 Several modules imlement list targets. 
 
-##Modules
+## Modules
 
-###Ticket
+### Ticket
 
 Each ticket target, except new, requires a ticket_id sent as a POST or GET parameter either in POST JSON data (herein referred to as 'data'). 
 
@@ -137,7 +136,7 @@ Or with curl, you can see the raw data:
 
 This uses authtntication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
 
-###Sysem Information
+### System Information
 
 This module provides detailed data about the target host. This comprehensive 'blob' (a JSON object) contains identification data on the host, the operating system, whether it's a virtual machine, cpu, network statistics, the count of packages that need to be ugraded, the cpu architecture, ram and disk sizes and usage.
 
@@ -184,7 +183,7 @@ Endpoints:
 |systeminfo/info| General System Information|
 /systeminfo/list|List available endpoints|
 
-###Services
+### Services
 
 The services module uses pre-defined roles that are defined in the user record and tied to the ticket. Operations must have either *service_read*  *service_control*. These endpoints provide direct access to some systemd functions and require granular control via RBAC and ticketing operations. 
 
@@ -324,7 +323,7 @@ service/*service*/status also produces a large amount of data:
     ...
 ```  
  
-####Example System Information Blob
+#### Example System Information Blob
 
 ```json
  dfapi //hp/systeminfo
