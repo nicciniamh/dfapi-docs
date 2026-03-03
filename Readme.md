@@ -17,6 +17,8 @@
 
 The DucksFeet API is a distributed system management platform designed for secure, low-overhead monitoring and control. By utilizing a REST-like architecture served over a private Tailscale network, it provides a unified interface for interacting with diverse hosts—from Raspberry Pi sensors to Proxmox VMs—using a standardized ticketing system for secure, cross-host authorization.
 
+The examples in this document use the [CLI Tool](#cli-tool) and [jq](https://jqlang.org) to process the JSON data the tool produces. [jq](https://jqlang.org) is a powerful command-line JSON processor that can be used in shells and shell scripting. 
+
 ## CLI Tool
 
 The DucksFeet API CLI tool, dfapi, is a python module that provides command line access to the DucksFeet API ecosystem. 
