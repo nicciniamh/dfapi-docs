@@ -85,7 +85,7 @@ When using the CLI tool or API these operations are performed automatically and 
 | services | Systemd tools|
 |systeminfo| System examination |
 | ticket| Access control tickets |
-| vauth | vritual user authentication|
+| apiuser | User control module |
 
 ## Endpoints
 
