@@ -5,9 +5,9 @@
 * [Endponts](#Endponts)
 * [Modules](#Modules)
 * [Ticket](#Ticket)
-* [System Information](#System Information)
+* [System Information](#System-Information)
 * [Services](#Services)
-* [Example System Information Blob](#Example System Information Blob)
+* [Example System Information Blob](#Example-System-Information-Blob)
 
 ## DFApi CLI Tool
 
