@@ -9,8 +9,7 @@
 * [Services](#Services)
 * [Example System Information Blob](#Example-System-Information-Blob)
 
-The DucksFeet API is distributed system management platform implemented with REST-like servers and used via a Python library and CLI tool. For the purposes of this document, the examples will use the dfapi CLI tool and `jq(1)` for parsing JSON. 
-
+The DucksFeet API is a distributed system management platform designed for secure, low-overhead monitoring and control. By utilizing a REST-like architecture served over a private Tailscale network, it provides a unified interface for interacting with diverse hosts—from Raspberry Pi sensors to Proxmox VMs—using a standardized ticketing system for secure, cross-host authorization.
 
 ## CLI Tool
 
@@ -325,6 +324,20 @@ service/*service*/status also produces a large amount of data:
     "ControlGroup": "/system.slice/rapi.service",
     ...
 ```  
+
+### User Control
+The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. (See [Authentication](#authentication]))
+
+The endpoints for apiuser are: 
+|Endpoint|Descrtiption|Roles Required|
+|--------|------------|--------------|
+| apiuser/list | List users | user_view |
+| apiuser/*user*/new | Creates a new user from data | user_view, user_modify |
+| apiuser/*user*/modify | Modifies a new user from data | user_view, user_modify |
+| apiuser/*user*/delete | Deletes a new user | user_view, user_modify |
+| apiuser/*user*/grant/*role* | Grant a role to a user | user_view, user_modify |
+| apiuser/*user*/revoke/*role* | Revoke role from a user | user_view, user_modify |
+
 
 #### Example of Authentication with Cross Host Ticket Use
 
