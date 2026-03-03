@@ -32,7 +32,7 @@ Arguments
 |  -s, --stdin |          Read API data from stdin |
 | -h, --help|            Show help message and exit |
 
-positional arguments:
+Positional arguments:
 *  endpoint: Endpoint to call
 *  args: Arguments for the endpoint in JSON format
 
