@@ -16,7 +16,6 @@ The tool handles authentication and ticket acquisition to perform actions. The t
 
 ### DFApi Usage and Configuration
 
-{{% dfapiusaege summary="dfapi program usage" %}}
 ```bash
 dfapi -h
 usage: dfapi.py [-h] [-d] [-r file.json] [-s] endpoint [args ...]
@@ -35,7 +34,7 @@ options:
   -s, --stdin           Read API data from stdin
 ```
 
-{{% /dfapiusafe %}}
+
 The rc-file is a JSON file in the form of
 
 ```json
