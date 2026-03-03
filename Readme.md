@@ -1,6 +1,6 @@
 # DucksFeet API
 
-* [DFApi CLI Tool](#cli-tool)
+* [CLI Tool](#cli-tool)
 * [Authentication](#Authentication)
 * [Endpoints](#Endpoints)
 * [Modules](#Modules)
