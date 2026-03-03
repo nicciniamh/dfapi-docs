@@ -7,6 +7,7 @@
 * [Ticket](#Ticket)
 * [System Information](#System-Information)
 * [Services](#Services)
+* [User Control](#User-Control)
 * [Example System Information Blob](#Example-System-Information-Blob)
 
 The DucksFeet API is a distributed system management platform designed for secure, low-overhead monitoring and control. By utilizing a REST-like architecture served over a private Tailscale network, it provides a unified interface for interacting with diverse hosts—from Raspberry Pi sensors to Proxmox VMs—using a standardized ticketing system for secure, cross-host authorization.
@@ -326,7 +327,7 @@ service/*service*/status also produces a large amount of data:
 ```  
 
 ### User Control
-The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. (See [Authentication](#authentication]))
+The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. See, also, [Authentication](#Authentication)
 
 The endpoints for apiuser are: 
 |Endpoint|Descrtiption|Roles Required|
