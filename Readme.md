@@ -339,6 +339,7 @@ The endpoints for apiuser are:
 | apiuser/*user*/grant/*role* | Grant a role to a user | user_view, user_modify |
 | apiuser/*user*/revoke/*role* | Revoke role from a user | user_view, user_modify |
 
+## Examples
 
 #### Example of Authentication with Cross Host Ticket Use
 
