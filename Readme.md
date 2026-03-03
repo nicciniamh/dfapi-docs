@@ -9,7 +9,11 @@
 * [Services](#Services)
 * [User Control](#User-Control)
 * [Examples](#Examples)
-* [Example System Information Blob](#Example-System-Information-Blob)
+    * [Example of Authentication with Cross Host Ticket Use](#Example-of-Authentication-with-Cross-Host-Ticket-Use)
+    * [Example of Service output](#Example-of-Service-output)
+        * [List](#List)
+        * [Status](#Status)
+    * [Example System Information Blob](#Example-System-Information-Blob)
 
 The DucksFeet API is a distributed system management platform designed for secure, low-overhead monitoring and control. By utilizing a REST-like architecture served over a private Tailscale network, it provides a unified interface for interacting with diverse hosts—from Raspberry Pi sensors to Proxmox VMs—using a standardized ticketing system for secure, cross-host authorization.
 
@@ -76,68 +80,66 @@ To obtain a ticket, a user_id and password are supplied. This is used to determi
 When using the CLI tool or API these operations are performed automatically and cached. 
 
 
-## DFApi Modules
+## Endpoints
+
+DFApi uses consistent endpoint module and endpoints. Endpoints use a UNC style path to target a host. The host is looked up to get the FQDN of the host for constructing a URL that works with the SSL certificate of that host. 
+
+The endpoints are formatted as 
+
+```bash 
+//host/module/[target][/qualifier/...]
+```
+## Modules
 
 |module|Use|
 |---------|---|
-| sensor    | Physical sensors, IoT type stuff |
+| apiuser | User control module |
 | services | Systemd tools|
 |systeminfo| System examination |
 | ticket| Access control tickets |
-| apiuser | User control module |
 
-## Endpoints
+### APIUser
+The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. See, also, [Authentication](#Authentication)
 
-DFApi uses consistent endpoint module and endpoints. The formats are formatted as 
+The endpoints for apiuser are: 
+|Endpoint|Descrtiption|Roles Required|
+|--------|------------|--------------|
+| apiuser/list | List users | user_view |
+| apiuser/*user*/new | Creates a new user from data | user_view, user_modify |
+| apiuser/*user*/modify | Modifies a new user from data | user_view, user_modify |
+| apiuser/*user*/delete | Deletes a new user | user_view, user_modify |
+| apiuser/*user*/grant/*role* | Grant a role to a user | user_view, user_modify |
+| apiuser/*user*/revoke/*role* | Revoke role from a user | user_view, user_modify |
 
-```bash 
-//host/module/[target][/qualifier]
-```
+### Services
 
-```bash
- dfapi //pi4/sensor/pi3/list
-[
-    "aggregate",
-    "aht10",
-    "bmp280",
-    "cpu_usage",
-    "rgb"
-]
-```
-Here the module is sensor, the target is pi4 and the qualifier is the sensor.
-Several modules implement list targets. 
+The services module uses pre-defined roles that are defined in the user record and tied to the ticket. Operations must have either *service_read*  *service_control*. These endpoints provide direct access to some systemd functions and require granular control via RBAC and ticketing operations. 
 
-## Modules
+The services endpoints are:
 
-### Ticket
+|Endpoint|Description| Role Required |
+|----|----|----|
+|services/list | List all services | service_read|
+|services/*service*/status | Get Detailed service status| service_read |
+|services/*service*/start | Start service | service_control |
+|services/*service*/stop | Stop service | service_control |
+|services/*service*/restart| Restart service | service_control |
 
-Each ticket target, except new, requires a ticket_id sent as a POST or GET parameter either in POST JSON data (herein referred to as 'data'). 
-
-End points
-
-|Target| Description |
-|--------|------------|
-|ticket/new     |Create new ticker with data: {"user_id": *userid*, "password": *password*}|
-|ticket/delete| Delete the current ticket|
-| ticket/validate | Validate the current ticket|
-| ticket/set_session| Set session data in for current ticket with data {"session_data": *JSON object*}|
-| ticket/get_session| Get session data for current ticket|
-
-Example using the DFApi Tool:
-
-```bash 
-cat etc/dfapi.json|  dfapi -s //host/ticket/new
-"Uda7fWcsIlk4UANcf249m4QGyYfyM1ViRQwhmdYyp-8"
-```
-
-Or with curl, you can see the raw data: 
+Example of service control and response:
 
 ```bash
- curl -Ss -d "$(cat etc/dfapi.json)" https://host:9192/ticket/new
-{"status": "ok", "request_path": "new", "data": "K2Xz5xuiIe18ss8A8Z2QtZpOK3RwhnyGNKRXcdMvToc"}
+ dfapi //hp/services/dummy-target/start
+{
+    "action": "start",
+    "service_name": "dummy-target",
+    "command_status": true,
+    "return_code": 0,
+    "message": ""
+}
 ```
 
-This uses authentication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
+The services/list endpoint will produce *lots* of data.
+
 
 ### System Information
 
@@ -186,35 +188,61 @@ Endpoints:
 |systeminfo/info| General System Information|
 /systeminfo/list|List available endpoints|
 
-### Services
+### Ticket
 
-The services module uses pre-defined roles that are defined in the user record and tied to the ticket. Operations must have either *service_read*  *service_control*. These endpoints provide direct access to some systemd functions and require granular control via RBAC and ticketing operations. 
+Each ticket target, except new, requires a ticket_id sent as a POST or GET parameter either in POST JSON data (herein referred to as 'data'). 
 
-The services endpoints are:
+End points
 
-|Endpoint|Description| Role Required |
-|----|----|----|
-|services/list | List all services | service_read|
-|services/*service*/status | Get Detailed service status| service_read |
-|services/*service*/start | Start service | service_control |
-|services/*service*/stop | Stop service | service_control |
-|services/*service*/restart| Restart service | service_control |
+|Target| Description |
+|--------|------------|
+|ticket/new     |Create new ticker with data: {"user_id": *userid*, "password": *password*}|
+|ticket/delete| Delete the current ticket|
+| ticket/validate | Validate the current ticket|
+| ticket/set_session| Set session data in for current ticket with data {"session_data": *JSON object*}|
+| ticket/get_session| Get session data for current ticket|
 
-Example of service control and response:
+Example using the DFApi Tool:
 
-```bash
- dfapi //hp/services/dummy-target/start
-{
-    "action": "start",
-    "service_name": "dummy-target",
-    "command_status": true,
-    "return_code": 0,
-    "message": ""
-}
+```bash 
+cat etc/dfapi.json|  dfapi -s //host/ticket/new
+"Uda7fWcsIlk4UANcf249m4QGyYfyM1ViRQwhmdYyp-8"
 ```
 
-The services/list endpoint will produce *lots* of  data: 
+Or with curl, you can see the raw data: 
 
+```bash
+ curl -Ss -d "$(cat etc/dfapi.json)" https://host:9192/ticket/new
+{"status": "ok", "request_path": "new", "data": "K2Xz5xuiIe18ss8A8Z2QtZpOK3RwhnyGNKRXcdMvToc"}
+```
+
+This uses authentication data store in etc/dfapi.json to send to the host the ticket/new endpoint and returns the quoted ticket_id.
+
+## Examples
+
+#### Example of Authentication with Cross Host Ticket Use
+
+Files:
+
+* `~/etc/dfapi.json` - Contains credentials and secret key needed foor all transactions
+* `~/etc/dfapi-key.json` - Contains just the secret key needed. 
+
+```bash
+# Using curl(1) to get a ticket from host a
+
+curl -Ss -d "$(cat etc/dfapi.json)"  https://hosta.example.com:9192/ticket/new | jq -r '.data'
+P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
+
+# Using curl(1) to get system information from hostb with the ticket obtained from hosta 
+
+curl -Ss -d "$(cat ~/etc/dfapi-key.json)" https://hostb.example.com:9192/systeminfo/info\?ticket_id\=P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
+{"status": "ok", "request_path": "info", "data": {"virtual_machine": true, "machine": "x86_64", "sysname": "Linux", "version": "#1 SMP PREEMPT_DYNAMIC Debian 6.1.159-1 (2025-12-30)", "release": "6.1.0-42-amd64", "nodename": "hostb", "os-release": {"PRETTY_NAME": "Debian GNU/Linux 12 (bookworm)", "NAME": "Debian GNU/Linux", "VERSION_ID": 12, "VERSION": "12 (bookworm)", "VERSION_CODENAME": "bookworm", "ID": "debian", "HOME_URL": "https://www.debian.org/", "SUPPORT_URL": "https://www.debian.org/support", "BUG_REPORT_URL": "https://bugs.debian.org/"}}}
+
+```
+
+#### Example of Service output
+
+##### List
 ```bash
 dfapi //hp/services/list [
     {
@@ -269,6 +297,7 @@ dfapi //hp/services/list [
     ...
 ``` 
 
+##### Status
 service/*service*/status also produces a large amount of data:
 
 ```bash
@@ -326,41 +355,6 @@ service/*service*/status also produces a large amount of data:
     ...
 ```  
 
-### User Control
-The apiuser module manages users for the DucksFeet API ecosystem. These users are used to access the API with given roles. See, also, [Authentication](#Authentication)
-
-The endpoints for apiuser are: 
-|Endpoint|Descrtiption|Roles Required|
-|--------|------------|--------------|
-| apiuser/list | List users | user_view |
-| apiuser/*user*/new | Creates a new user from data | user_view, user_modify |
-| apiuser/*user*/modify | Modifies a new user from data | user_view, user_modify |
-| apiuser/*user*/delete | Deletes a new user | user_view, user_modify |
-| apiuser/*user*/grant/*role* | Grant a role to a user | user_view, user_modify |
-| apiuser/*user*/revoke/*role* | Revoke role from a user | user_view, user_modify |
-
-## Examples
-
-#### Example of Authentication with Cross Host Ticket Use
-
-Files:
-
-* `~/etc/dfapi.json` - Contains credentials and secret key needed foor all transactions
-* `~/etc/dfapi-key.json` - Contains just the secret key needed. 
-
-```bash
-# Using curl(1) to get a ticket from host a
-
-curl -Ss -d "$(cat etc/dfapi.json)"  https://hosta.example.com:9192/ticket/new | jq -r '.data'
-P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
-
-# Using curl(1) to get system information from hostb with the ticket obtained from hosta 
-
-curl -Ss -d "$(cat ~/etc/dfapi-key.json)" https://hostb.example.com:9192/systeminfo/info\?ticket_id\=P_pu3VAQ4AwtfBoPTLGkph1WqMLkAllMfpynL45YbJM
-{"status": "ok", "request_path": "info", "data": {"virtual_machine": true, "machine": "x86_64", "sysname": "Linux", "version": "#1 SMP PREEMPT_DYNAMIC Debian 6.1.159-1 (2025-12-30)", "release": "6.1.0-42-amd64", "nodename": "hostb", "os-release": {"PRETTY_NAME": "Debian GNU/Linux 12 (bookworm)", "NAME": "Debian GNU/Linux", "VERSION_ID": 12, "VERSION": "12 (bookworm)", "VERSION_CODENAME": "bookworm", "ID": "debian", "HOME_URL": "https://www.debian.org/", "SUPPORT_URL": "https://www.debian.org/support", "BUG_REPORT_URL": "https://bugs.debian.org/"}}}
-
-```
- 
 #### Example System Information Blob
 
 ```json
