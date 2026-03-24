@@ -50,22 +50,14 @@ Positional arguments:
 
 #### API Endpoint specification
 
-```mermaid
-flowchart LR
-  A[//] --> B[node]
-  B --> C[:]
-  C --> D[port]
-  D --> E[/]
-  E --> F[module]
-  F --> G[/]
-  G --> H[target]
-  H --> I[/]
-  I --> J[param]
-  style A fill:#f9f
-  style E fill:#f9f
-  style G fill:#f9f
-  style I fill:#f9f
-```
+[//*node*[:*port*]|@]/*module*/*target*/*param1*/*param2*/*etc*
+
+* node - the node on which to call the api or *@* for all nodes.
+* port - the port to use (see usage below)
+* module - this is the api modules ot use 
+* target - optional target of the module. 
+* param... - optional parameters 
+
 
 The rc-file is a JSON file in the form of
 
