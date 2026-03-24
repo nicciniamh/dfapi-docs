@@ -1,5 +1,11 @@
 # DucksFeet API
 
+ "Look at a duck on the pond. On the surface, everything looks calm, 
+ but beneath the water those little feet are churning like crazy." 
+ - Jimmy McGinty (The Replacements)
+
+ This is the DucksFeet core philosophy - be busy without looking busy. 
+
 * [CLI Tool](#cli-tool)
 * [Authentication](#Authentication)
 * [Endpoints](#Endpoints)
@@ -42,19 +48,25 @@ Positional arguments:
 *  endpoint: Endpoint to call
 *  args: Arguments for the endpoint in JSON format
 
+#### API Endpoint specification
+
+graph LR
+    A["//HOST | @"] --> B["/MODULE/"]
+    B --> C["/TARGET/"]
+    C --> D["/...PARMS"]
+
+    style A fill:#f4f4f4,stroke:#333,stroke-width:2px
+    style B fill:#e1f5fe,stroke:#01579b
+    style C fill:#fff9c4,stroke:#fbc02d
+    style D fill:#f1f8e9,stroke:#558b2f
+
+    
 The rc-file is a JSON file in the form of
 
 ```json
 {
   "credentials": "/home/user/etc/dfapi.json",
-  "tickets": {
-    "devsrv": "ticket",
-    "dbsrv": "ticket",
-    "mailhost": "ticket",
-    "i2c": "ticket",
-    "proxmox": "ticket",
-    "coolvm": "ticket"
-  }
+  "ticket": "ascii ticket id"
 }
 ```
 
