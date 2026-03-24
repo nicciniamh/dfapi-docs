@@ -80,7 +80,6 @@ And the credentials file is in the format of
 }
 ```
 
-
 ## Authentication
 
 Access control is managed via tickets. Tickets are a unique ID that lasts a server configurable timeout, the default is 600 seconds or 10 minutes. 
