@@ -50,10 +50,22 @@ Positional arguments:
 
 #### API Endpoint specification
 
-graph TD
-    ROOT["//HOST | @"] --> MODULE["/MODULE/"]
-    MODULE --> TARGET["/TARGET/"]
-    TARGET --> PARMS["/...PARMS"]
+```mermaid
+flowchart LR
+  A[//] --> B[node]
+  B --> C[:]
+  C --> D[port]
+  D --> E[/]
+  E --> F[module]
+  F --> G[/]
+  G --> H[target]
+  H --> I[/]
+  I --> J[param]
+  style A fill:#f9f
+  style E fill:#f9f
+  style G fill:#f9f
+  style I fill:#f9f
+```
 
 The rc-file is a JSON file in the form of
 
