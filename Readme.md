@@ -50,17 +50,11 @@ Positional arguments:
 
 #### API Endpoint specification
 
-graph LR
-    A["//HOST | @"] --> B["/MODULE/"]
-    B --> C["/TARGET/"]
-    C --> D["/...PARMS"]
+graph TD
+    ROOT["//HOST | @"] --> MODULE["/MODULE/"]
+    MODULE --> TARGET["/TARGET/"]
+    TARGET --> PARMS["/...PARMS"]
 
-    style A fill:#f4f4f4,stroke:#333,stroke-width:2px
-    style B fill:#e1f5fe,stroke:#01579b
-    style C fill:#fff9c4,stroke:#fbc02d
-    style D fill:#f1f8e9,stroke:#558b2f
-
-    
 The rc-file is a JSON file in the form of
 
 ```json
